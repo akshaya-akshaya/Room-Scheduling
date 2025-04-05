@@ -100,7 +100,7 @@ const RoomSchedulePage: React.FC = () => {
     <div className="p-6 w-full bg-gray-50 min-h-screen">
       <div className="flex justify-center items-center mb-6">
         <h2 className="text-xl font-semibold">
-          Week {weekNumber}, {year}
+          Week pp{weekNumber}, {year}
         </h2>
       </div>
       <div className="mb-6 overflow-x-auto">
