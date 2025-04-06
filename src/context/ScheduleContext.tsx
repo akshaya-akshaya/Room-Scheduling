@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect, useMemo } from 'react';
 import { Shift, Block, Room, WeekSchedule } from '../types';
 
 interface ScheduleContextType {
@@ -59,43 +59,48 @@ export const ScheduleProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     }
   }, [weekSchedule]);
 
-  const addShift = (shift: Shift) => setShifts([...shifts, shift]);
+  const addShift = (shift: Shift) => setShifts(prev => [...prev, shift]);
   const updateShift = (shift: Shift) => {
-    setShifts(shifts.map(s => s.id === shift.id ? shift : s));
+    setShifts(prev => prev.map(s => s.id === shift.id ? shift : s));
   };
-  const deleteShift = (id: string) => setShifts(shifts.filter(s => s.id !== id));
+  const deleteShift = (id: string) => setShifts(prev => prev.filter(s => s.id !== id));
 
-  const addBlock = (block: Block) => setBlocks([...blocks, block]);
+  const addBlock = (block: Block) => setBlocks(prev => [...prev, block]);
   const updateBlock = (block: Block) => {
-    setBlocks(blocks.map(b => b.id === block.id ? block : b));
+    setBlocks(prev => prev.map(b => b.id === block.id ? block : b));
   };
-  const deleteBlock = (id: string) => setBlocks(blocks.filter(b => b.id !== id));
+  const deleteBlock = (id: string) => setBlocks(prev => prev.filter(b => b.id !== id));
 
-  const addRoom = (room: Room) => setRooms([...rooms, room]);
+  const addRoom = (room: Room) => setRooms(prev => [...prev, room]);
   const updateRoom = (room: Room) => {
-    setRooms(rooms.map(r => r.id === room.id ? room : r));
+    setRooms(prev => prev.map(r => r.id === room.id ? room : r));
   };
-  const deleteRoom = (id: string) => setRooms(rooms.filter(r => r.id !== id));
+  const deleteRoom = (id: string) => setRooms(prev => prev.filter(r => r.id !== id));
 
-  const updateWeekSchedule = (schedule: WeekSchedule) => setWeekSchedule(schedule);
+  const updateWeekSchedule = (schedule: WeekSchedule) => {
+    setWeekSchedule(schedule);
+    localStorage.setItem('weekSchedule', JSON.stringify(schedule));
+  };
+
+  const contextValue = useMemo(() => ({
+    shifts,
+    blocks,
+    rooms,
+    weekSchedule,
+    addShift,
+    updateShift,
+    deleteShift,
+    addBlock,
+    updateBlock,
+    deleteBlock,
+    addRoom,
+    updateRoom,
+    deleteRoom,
+    updateWeekSchedule,
+  }), [shifts, blocks, rooms, weekSchedule]);
 
   return (
-    <ScheduleContext.Provider value={{
-      shifts,
-      blocks,
-      rooms,
-      weekSchedule,
-      addShift,
-      updateShift,
-      deleteShift,
-      addBlock,
-      updateBlock,
-      deleteBlock,
-      addRoom,
-      updateRoom,
-      deleteRoom,
-      updateWeekSchedule,
-    }}>
+    <ScheduleContext.Provider value={contextValue}>
       {children}
     </ScheduleContext.Provider>
   );
@@ -103,8 +108,6 @@ export const ScheduleProvider: React.FC<{ children: React.ReactNode }> = ({ chil
 
 export const useSchedule = () => {
   const context = useContext(ScheduleContext);
-  if (context === undefined) {
-    throw new Error('useSchedule must be used within a ScheduleProvider');
-  }
+  if (!context) throw new Error('useSchedule must be used within a ScheduleProvider');
   return context;
 };

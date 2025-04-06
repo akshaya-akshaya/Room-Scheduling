@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useSchedule } from '../context/ScheduleContext';
-import { Room} from '../types';
+import { Room } from '../types';
 
 interface RoomModalProps {
   isOpen: boolean;
@@ -13,6 +13,15 @@ const RoomModal: React.FC<RoomModalProps> = ({ isOpen, onClose, onSave, room }) 
   const { blocks } = useSchedule();
   const [name, setName] = useState(room?.name || '');
   const [blockId, setBlockId] = useState(room?.blockId || '');
+  
+  // Move useEffect before the conditional return
+  useEffect(() => {
+    if (isOpen) {
+      setName(room?.name || '');
+      setBlockId(room?.blockId || '');
+    }
+  }, [room, isOpen]);
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     const selectedBlock = blocks.find(b => b.id === blockId);
@@ -97,4 +106,5 @@ const RoomModal: React.FC<RoomModalProps> = ({ isOpen, onClose, onSave, room }) 
     </div>
   );
 };
+
 export default RoomModal;

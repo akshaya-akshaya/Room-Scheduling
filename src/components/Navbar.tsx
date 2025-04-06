@@ -1,26 +1,40 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
-import {Clock, SquareStack, DoorOpen, Calendar } from 'lucide-react';
+import { Calendar, SquareStack, DoorOpen, Clock } from 'lucide-react';
 
 const Navbar: React.FC = () => {
   return (
-    <div className="w-56 min-h-screen bg-gray-800 text-white py-6">
+    <div className="w-56 min-h-screen bg-[#2B2730] text-white py-6">
       <div className="px-6 mb-8">
         <div className="h-20 w-full bg-gray-700 rounded-md"></div>
       </div>
       <nav className="space-y-1 px-3">
         <NavLink
+          to="/dashboard"
+          className={({ isActive }) =>
+            `flex items-center space-x-3 px-3 py-2 rounded-md text-sm font-medium ${
+              isActive
+                ? 'bg-white text-[#9575DE]'
+                : 'text-gray-300 hover:bg-white hover:text-[#9575DE]'
+            }`
+          }
+        >
+          <Calendar size={20} />
+          <span>Dashboard</span>
+        </NavLink>
+        
+        <NavLink
           to="/shifts"
           className={({ isActive }) =>
             `flex items-center space-x-3 px-3 py-2 rounded-md text-sm font-medium ${
               isActive
-                ? 'bg-gray-700 text-white'
-                : 'text-gray-300 hover:bg-gray-700 hover:text-white'
+                ? 'bg-white text-[#9575DE]'
+                : 'text-gray-300 hover:bg-white hover:text-[#9575DE]'
             }`
           }
         >
           <Clock size={20} />
-          <span>Shifts</span>
+          <span>Shift</span>
         </NavLink>
         
         <NavLink
@@ -28,8 +42,8 @@ const Navbar: React.FC = () => {
           className={({ isActive }) =>
             `flex items-center space-x-3 px-3 py-2 rounded-md text-sm font-medium ${
               isActive
-                ? 'bg-gray-700 text-white'
-                : 'text-gray-300 hover:bg-gray-700 hover:text-white'
+                ? 'bg-white text-[#9575DE]'
+                : 'text-gray-300 hover:bg-white hover:text-[#9575DE]'
             }`
           }
         >
@@ -42,8 +56,8 @@ const Navbar: React.FC = () => {
           className={({ isActive }) =>
             `flex items-center space-x-3 px-3 py-2 rounded-md text-sm font-medium ${
               isActive
-                ? 'bg-gray-700 text-white'
-                : 'text-gray-300 hover:bg-gray-700 hover:text-white'
+                ? 'bg-white text-[#9575DE]'
+                : 'text-gray-300 hover:bg-white hover:text-[#9575DE]'
             }`
           }
         >
@@ -56,8 +70,8 @@ const Navbar: React.FC = () => {
           className={({ isActive }) =>
             `flex items-center space-x-3 px-3 py-2 rounded-md text-sm font-medium ${
               isActive
-                ? 'bg-gray-700 text-white'
-                : 'text-gray-300 hover:bg-gray-700 hover:text-white'
+                ? 'bg-white text-[#9575DE]'
+                : 'text-gray-300 hover:bg-white hover:text-[#9575DE]'
             }`
           }
         >

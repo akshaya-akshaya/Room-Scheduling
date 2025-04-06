@@ -31,7 +31,9 @@ const BlockModal: React.FC<BlockModalProps> = ({ isOpen, onClose, onSave, block 
       setLoading(false);
     }
   };
-  
+  React.useEffect(() => {
+    setName(block?.name || '');
+  }, [block]);
   return (
     <div className={`fixed inset-0 z-50 flex items-center justify-center ${isOpen ? 'block' : 'hidden'}`}>
       <div className="fixed inset-0 bg-black bg-opacity-50" onClick={onClose}></div>

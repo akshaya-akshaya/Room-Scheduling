@@ -11,16 +11,19 @@ interface ShiftModalProps {
   onSave: (shift: Shift) => void;
   shift?: Shift;
 }
-
 const ShiftModal: React.FC<ShiftModalProps> = ({ isOpen, onClose, onSave, shift }) => {
   const [startTime, setStartTime] = useState<Dayjs | null>(null);
   const [endTime, setEndTime] = useState<Dayjs | null>(null);
   const [loading, setLoading] = useState(false);
-
   useEffect(() => {
-    setStartTime(shift?.startTime ? dayjs(shift.startTime, 'HH:mm') : null);
-    setEndTime(shift?.endTime ? dayjs(shift.endTime, 'HH:mm') : null);
-  }, [shift]);
+    if (shift) {
+      setStartTime(shift?.startTime ? dayjs(shift.startTime, 'HH:mm') : null);
+      setEndTime(shift?.endTime ? dayjs(shift.endTime, 'HH:mm') : null);
+    } else {
+      setStartTime(null);
+      setEndTime(null);
+    }
+  }, [shift, isOpen]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -92,5 +95,4 @@ const ShiftModal: React.FC<ShiftModalProps> = ({ isOpen, onClose, onSave, shift 
     </Modal>
   );
 };
-
 export default ShiftModal;

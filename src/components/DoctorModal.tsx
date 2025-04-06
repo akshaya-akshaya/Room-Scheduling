@@ -1,4 +1,3 @@
-// DoctorModal.tsx - CORRECTED VERSION
 import React, { useState, useEffect } from 'react';
 
 interface DoctorModalProps {
@@ -7,29 +6,43 @@ interface DoctorModalProps {
   onSave: (doctorName: string) => void;
   isRemove?: boolean;
   currentDoctor?: string;
+  cellData: {
+    roomId: string;
+    day: string;
+    shiftId: string;
+    doctor?: string;
+  } | null;
 }
-
 const DoctorModal: React.FC<DoctorModalProps> = ({
   isOpen,
   onClose,
   onSave,
   isRemove,
   currentDoctor,
+  cellData,
 }) => {
   const [doctorName, setDoctorName] = useState('');
   const [selectedDoctor, setSelectedDoctor] = useState('');
   const [doctorList, setDoctorList] = useState<string[]>([]);
   const [isCustomDoctor, setIsCustomDoctor] = useState(false);
+
+  useEffect(() => {
+    if (isOpen && cellData) {
+      localStorage.setItem('selectedCellData', JSON.stringify(cellData));
+    }
+  }, [isOpen, cellData]);
+
   useEffect(() => {
     const savedDoctors = localStorage.getItem('doctorList');
     if (savedDoctors) {
       setDoctorList(JSON.parse(savedDoctors));
     } else {
-      const defaultDoctors = ['Smith', 'Johnson', 'Williams', 'Brown', 'Jones'];
+      const defaultDoctors: string[] = [];
       setDoctorList(defaultDoctors);
       localStorage.setItem('doctorList', JSON.stringify(defaultDoctors));
     }
   }, []);
+
   useEffect(() => {
     if (isOpen) {
       if (isRemove && currentDoctor) {
@@ -43,20 +56,20 @@ const DoctorModal: React.FC<DoctorModalProps> = ({
   }, [isOpen, isRemove, currentDoctor]);
 
   const handleSubmit = (e?: React.FormEvent) => {
-    if (e) {
-      e.preventDefault();
-    }
+    if (e) e.preventDefault();
+
     if (isRemove) {
       onSave('');
       onClose();
       return;
     }
+
     let finalDoctorName = '';
-    
+
     if (isCustomDoctor) {
       if (!doctorName.trim()) return;
       finalDoctorName = doctorName;
-     
+
       if (!doctorList.includes(doctorName)) {
         const updatedList = [...doctorList, doctorName];
         setDoctorList(updatedList);
@@ -66,10 +79,10 @@ const DoctorModal: React.FC<DoctorModalProps> = ({
       if (!selectedDoctor) return;
       finalDoctorName = selectedDoctor;
     }
+
     onSave(finalDoctorName);
     setDoctorName('');
     setSelectedDoctor('');
-    onClose();
   };
 
   if (!isOpen) return null;
@@ -106,7 +119,7 @@ const DoctorModal: React.FC<DoctorModalProps> = ({
                     Select Existing Doctor
                   </label>
                 </div>
-                
+
                 <select
                   value={selectedDoctor}
                   onChange={(e) => setSelectedDoctor(e.target.value)}
@@ -136,7 +149,7 @@ const DoctorModal: React.FC<DoctorModalProps> = ({
                     Add New Doctor
                   </label>
                 </div>
-                
+
                 <input
                   type="text"
                   value={doctorName}

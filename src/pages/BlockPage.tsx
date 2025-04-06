@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Plus, Pencil, Trash2 } from 'lucide-react';
+import { Plus, Pencil, Trash2, ChevronDown } from 'lucide-react';
 import { useSchedule } from '../context/ScheduleContext';
 import BlockModal from '../components/BlockModal';
 import { Block } from '../types';
@@ -9,12 +9,11 @@ const BlockPage: React.FC = () => {
   const [searchText, setSearchText] = useState('');
   const [entriesPerPage, setEntriesPerPage] = useState(10);
   const [selectedBlock, setSelectedBlock] = useState<Block | undefined>();
-
+  const [currentPage, setCurrentPage] = useState(1);
   const handleEdit = (block: Block) => {
     setSelectedBlock(block);
     setIsModalOpen(true);
   };
-
   const handleSave = (block: Block) => {
     if (selectedBlock) {
       updateBlock(block);
@@ -24,21 +23,38 @@ const BlockPage: React.FC = () => {
     setSelectedBlock(undefined);
     setIsModalOpen(false);
   };
-
   const filteredBlocks = blocks.filter(block => 
     block.name.toLowerCase().includes(searchText.toLowerCase())
-  );
-
-  const sampleShifts = [
-    { id: 1, name: '9 am - 1 pm', startTime: '09:00', endTime: '13:00' },
-    { id: 2, name: '1 pm - 3 pm', startTime: '13:00', endTime: '15:00' },
-    { id: 3, name: 'Lorem Ipsum', startTime: '00:00', endTime: '00:00' },
-    { id: 4, name: 'Lorem Ipsum', startTime: '00:00', endTime: '00:00' },
-    { id: 5, name: 'Lorem Ipsum', startTime: '00:00', endTime: '00:00' },
-    { id: 6, name: 'Lorem Ipsum', startTime: '00:00', endTime: '00:00' },
-  ];
-  const displayBlock = filteredBlocks.length > 0 ? filteredBlocks : sampleShifts;
-  console.log('--------filteredBlocks--------', filteredBlocks);
+    );
+    const totalItems = filteredBlocks.length;
+    const totalPages = Math.max(1, Math.ceil(totalItems / entriesPerPage));
+    
+    React.useEffect(() => {
+      if (currentPage > totalPages) {
+        setCurrentPage(totalPages);
+      }
+    }, [totalPages, currentPage]);
+  
+    const startIndex = (currentPage - 1) * entriesPerPage;
+    const endIndex = Math.min(startIndex + entriesPerPage, totalItems);
+  
+    const goToNextPage = () => {
+      if (currentPage < totalPages) {
+        setCurrentPage(currentPage + 1);
+      }
+    };
+  
+    const goToPreviousPage = () => {
+      if (currentPage > 1) {
+        setCurrentPage(currentPage - 1);
+      }
+    };
+  
+    const displayData = filteredBlocks;
+    const totalDisplayItems = displayData.length;
+  
+    const paginatedDisplayData = displayData.slice(startIndex, startIndex + entriesPerPage);
+    const displayBlock = paginatedDisplayData;
 
   return (
     <div className="p-6 w-full bg-gray-50 min-h-screen">
@@ -46,25 +62,22 @@ const BlockPage: React.FC = () => {
         <div className="flex items-center space-x-2">
           <span className="text-sm text-gray-600">Show</span>
           <div className="relative">
-            <select 
-              className="appearance-none border border-gray-300 rounded px-3 py-1 text-sm pr-8 bg-white"
-              value={entriesPerPage}
-              onChange={(e) => setEntriesPerPage(Number(e.target.value))}
-            >
-              <option value={10}>10</option>
-              <option value={25}>25</option>
-              <option value={50}>50</option>
-              <option value={100}>100</option>
-            </select>
-            <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
-              <svg className="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
-                <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z" />
-              </svg>
+              <select 
+                className="appearance-none border border-gray-300 rounded px-3 py-1 text-sm pr-8 bg-white"
+                value={entriesPerPage}
+                onChange={(e) => setEntriesPerPage(Number(e.target.value))}
+              >
+                <option value={10}>10</option>
+                <option value={25}>25</option>
+                <option value={50}>50</option>
+                <option value={100}>100</option>
+              </select>
+              <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2 text-gray-500">
+                <ChevronDown size={16} />
+              </div>
             </div>
-          </div>
           <span className="text-sm text-gray-600">entries</span>
         </div>
-
         <div className="flex items-center">
           <input
             type="text"
@@ -133,15 +146,63 @@ const BlockPage: React.FC = () => {
         </table>
       </div>
       <div className="flex justify-between items-center mt-4 text-sm text-gray-600">
-        <span>Showing 1 to {Math.min(displayBlock.length, entriesPerPage)} of {displayBlock.length} entries</span>
+        <span>
+          {totalDisplayItems > 0 
+            ? `Showing ${startIndex + 1} to ${Math.min(endIndex, totalDisplayItems)} of ${totalDisplayItems} entries` 
+            : 'Showing 0 to 0 of 0 entries'}
+        </span>
         <div className="flex space-x-2">
-          <button className="px-3 py-1 border-0 text-gray-400 cursor-not-allowed">
+          <button 
+            className={`px-3 py-1 border-0 ${
+              currentPage > 1 
+                ? 'text-purple-500 hover:bg-purple-50 cursor-pointer' 
+                : 'text-gray-400 cursor-not-allowed'
+            }`}
+            onClick={goToPreviousPage}
+            disabled={currentPage <= 1}
+          >
             Previous
           </button>
-          <button className="px-3 py-1 border-0 rounded bg-purple-50 font-bold text-purple-500">
-            1
-          </button>
-          <button className="px-3 py-1 border-0 text-gray-400 cursor-not-allowed">
+          {(() => {
+            let startPage = 1;
+            
+            if (currentPage > totalPages - 3) {
+              startPage = Math.max(1, totalPages - 3);
+            }
+            else if (currentPage > 2) {
+              startPage = currentPage - 1;
+            }
+            const pagesToShow = Math.min(4, totalPages);
+            return Array.from({ length: pagesToShow }, (_, i) => {
+              const pageNum = startPage + i;
+              if (pageNum <= totalPages) {
+                return (
+                  <button 
+                    key={pageNum}
+                    className={`px-3 py-1 border-0 rounded ${
+                      pageNum === currentPage 
+                        ? 'bg-purple-50 font-bold text-purple-500' 
+                        : 'hover:bg-gray-100 text-gray-600'
+                    }`}
+                    onClick={() => setCurrentPage(pageNum)}
+                  >
+                    {pageNum}
+                  </button>
+                );
+              }
+              return null;
+            });
+          })()}
+          
+          <button 
+            className={`px-3 py-1 border-0 ${
+              currentPage < totalPages 
+                ? 'text-purple-500 hover:bg-purple-50 cursor-pointer' 
+                : 'text-gray-400 cursor-not-allowed'
+            }`}
+            onClick={goToNextPage}
+            disabled={currentPage >= totalPages}
+          >
             Next
           </button>
         </div>

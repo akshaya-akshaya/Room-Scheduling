@@ -1,108 +1,9 @@
-// import React, { useState } from 'react';
-// import { Plus, Edit, Trash2 } from 'lucide-react';
-// import { useSchedule } from '../context/ScheduleContext';
-// import RoomModal from '../components/RoomModal';
-// import { Room } from '../types';
-
-// const RoomPage: React.FC = () => {
-//   const { rooms, addRoom, updateRoom, deleteRoom } = useSchedule();
-//   const [isModalOpen, setIsModalOpen] = useState(false);
-//   const [selectedRoom, setSelectedRoom] = useState<Room | undefined>();
-
-//   const handleEdit = (room: Room) => {
-//     setSelectedRoom(room);
-//     setIsModalOpen(true);
-//   };
-
-//   const handleSave = (room: Room) => {
-//     if (selectedRoom) {
-//       updateRoom(room);
-//     } else {
-//       addRoom(room);
-//     }
-//     setSelectedRoom(undefined);
-//   };
-
-//   return (
-//     <div className="container mx-auto px-4 py-8">
-//       <div className="flex justify-between items-center mb-6">
-//         <h1 className="text-2xl font-bold">Rooms</h1>
-//         <button
-//           onClick={() => {
-//             setSelectedRoom(undefined);
-//             setIsModalOpen(true);
-//           }}
-//           className="flex items-center px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
-//         >
-//           <Plus size={20} className="mr-2" />
-//           Add Room
-//         </button>
-//       </div>
-
-//       <div className="bg-white rounded-lg shadow overflow-hidden">
-//         <table className="min-w-full divide-y divide-gray-200">
-//           <thead className="bg-gray-50">
-//             <tr>
-//               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-//                 Room Name
-//               </th>
-//               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-//                 Block
-//               </th>
-//               <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-//                 Actions
-//               </th>
-//             </tr>
-//           </thead>
-//           <tbody className="bg-white divide-y divide-gray-200">
-//             {rooms.map((room) => (
-//               <tr key={room.id}>
-//                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-//                   {room.name}
-//                 </td>
-//                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-//                   {room.blockName}
-//                 </td>
-//                 <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-//                   <button
-//                     onClick={() => handleEdit(room)}
-//                     className="text-blue-600 hover:text-blue-900 mr-4"
-//                   >
-//                     <Edit size={18} />
-//                   </button>
-//                   <button
-//                     onClick={() => deleteRoom(room.id)}
-//                     className="text-red-600 hover:text-red-900"
-//                   >
-//                     <Trash2 size={18} />
-//                   </button>
-//                 </td>
-//               </tr>
-//             ))}
-//           </tbody>
-//         </table>
-//       </div>
-
-//       <RoomModal
-//         isOpen={isModalOpen}
-//         onClose={() => {
-//           setIsModalOpen(false);
-//           setSelectedRoom(undefined);
-//         }}
-//         onSave={handleSave}
-//         room={selectedRoom}
-//       />
-//     </div>
-//   );
-// };
-
-// export default RoomPage;
-
 import React, { useState } from 'react';
-import { Plus, Pencil, Trash2 } from 'lucide-react';
+import { Plus, Pencil, Trash2, ChevronDown } from 'lucide-react';
 import { useSchedule } from '../context/ScheduleContext';
 import RoomModal from '../components/RoomModal';
 import { Room } from '../types';
+import { message } from 'antd';
 
 const RoomPage: React.FC = () => {
   const { rooms, addRoom, updateRoom, deleteRoom } = useSchedule();
@@ -120,36 +21,29 @@ const RoomPage: React.FC = () => {
   const handleSave = (room: Room) => {
     if (selectedRoom) {
       updateRoom(room);
+      message.success('Room updated successfully');
     } else {
       addRoom(room);
+      message.success('Room created successfully');
     }
     setSelectedRoom(undefined);
     setIsModalOpen(false);
   };
-
-  // Filter rooms based on search text
+  
   const filteredRooms = rooms.filter(room => 
     room.name.toLowerCase().includes(searchText.toLowerCase()) ||
     (room.blockName && room.blockName.toLowerCase().includes(searchText.toLowerCase()))
   );
-
-  // Calculate pagination
   const totalItems = filteredRooms.length;
   const totalPages = Math.max(1, Math.ceil(totalItems / entriesPerPage));
-  
-  // Ensure current page is valid
   React.useEffect(() => {
     if (currentPage > totalPages) {
       setCurrentPage(totalPages);
     }
   }, [totalPages, currentPage]);
-
-  // Get paginated data
   const startIndex = (currentPage - 1) * entriesPerPage;
   const endIndex = Math.min(startIndex + entriesPerPage, totalItems);
   const paginatedRooms = filteredRooms.slice(startIndex, endIndex);
-
-  // Navigation functions
   const goToNextPage = () => {
     if (currentPage < totalPages) {
       setCurrentPage(currentPage + 1);
@@ -164,7 +58,6 @@ const RoomPage: React.FC = () => {
 
   return (
     <div className="p-6 w-full bg-gray-50 min-h-screen">
-      {/* Header with controls */}
       <div className="flex justify-between items-center mb-4">
         <div className="flex items-center space-x-2">
           <span className="text-sm text-gray-600">Show</span>
@@ -182,11 +75,9 @@ const RoomPage: React.FC = () => {
               <option value={50}>50</option>
               <option value={100}>100</option>
             </select>
-            <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
-              <svg className="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
-                <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z" />
-              </svg>
-            </div>
+            <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2 text-gray-500">
+                <ChevronDown size={16} />
+              </div>
           </div>
           <span className="text-sm text-gray-600">entries</span>
         </div>
@@ -214,8 +105,6 @@ const RoomPage: React.FC = () => {
           </button>
         </div>
       </div>
-
-      {/* Table */}
       <div className="bg-white rounded-lg shadow overflow-hidden">
         <table className="min-w-full divide-y divide-gray-200">
           <thead>
@@ -268,8 +157,6 @@ const RoomPage: React.FC = () => {
           </tbody>
         </table>
       </div>
-
-      {/* Pagination */}
       <div className="flex justify-between items-center mt-4 text-sm text-gray-600">
         <span>
           {totalItems > 0 
@@ -288,24 +175,15 @@ const RoomPage: React.FC = () => {
           >
             Previous
           </button>
-          
-          {/* Generate page buttons */}
           {(() => {
-            // Calculate which page numbers to show
             let startPage = 1;
-            
-            // If current page is near the end, adjust startPage
             if (currentPage > totalPages - 3) {
               startPage = Math.max(1, totalPages - 3);
             }
-            // Otherwise center current page if possible
             else if (currentPage > 2) {
               startPage = currentPage - 1;
             }
-            
-            // Limit to maximum of 4 pages
             const pagesToShow = Math.min(4, totalPages);
-            
             return Array.from({ length: pagesToShow }, (_, i) => {
               const pageNum = startPage + i;
               if (pageNum <= totalPages) {
@@ -340,8 +218,6 @@ const RoomPage: React.FC = () => {
           </button>
         </div>
       </div>
-
-      {/* Modal */}
       <RoomModal
         isOpen={isModalOpen}
         onClose={() => {
@@ -354,5 +230,4 @@ const RoomPage: React.FC = () => {
     </div>
   );
 };
-
 export default RoomPage;

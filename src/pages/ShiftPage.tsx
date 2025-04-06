@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Plus, Pencil, Trash2 } from 'lucide-react';
+import { Plus, Pencil, Trash2, ChevronDown } from 'lucide-react';
 import { useSchedule } from '../context/ScheduleContext';
 import ShiftModal from '../components/ShiftModal';
 import { Shift } from '../types';
@@ -54,19 +54,7 @@ const ShiftPage: React.FC = () => {
     }
   };
 
-  const sampleShifts = [
-    { id: 1, name: '9 am - 1 pm', startTime: '09:00', endTime: '13:00' },
-    { id: 2, name: '1 pm - 3 pm', startTime: '13:00', endTime: '15:00' },
-    { id: 3, name: 'Morning Shift', startTime: '07:00', endTime: '11:00' },
-    { id: 4, name: 'Afternoon Shift', startTime: '12:00', endTime: '16:00' },
-    { id: 5, name: 'Evening Shift', startTime: '17:00', endTime: '21:00' },
-    { id: 6, name: 'Night Shift', startTime: '22:00', endTime: '06:00' },
-    { id: 7, name: 'Weekend Morning', startTime: '08:00', endTime: '12:00' },
-    { id: 8, name: 'Weekend Evening', startTime: '16:00', endTime: '20:00' },
-    { id: 9, name: 'Half Day', startTime: '08:00', endTime: '14:00' },
-    { id: 10, name: 'Full Day', startTime: '09:00', endTime: '17:00' },
-  ];
-  const displayData = filteredShifts.length > 0 ? filteredShifts : sampleShifts;
+  const displayData = filteredShifts;
   const totalDisplayItems = displayData.length;
 
   const paginatedDisplayData = displayData.slice(startIndex, startIndex + entriesPerPage);
@@ -86,11 +74,14 @@ const ShiftPage: React.FC = () => {
                 setCurrentPage(1); 
               }}
             >
-              <option value={5}>5</option>
-              <option value={10}>10</option>
+               <option value={10}>10</option>
               <option value={25}>25</option>
               <option value={50}>50</option>
+              <option value={100}>100</option>
             </select>
+            <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2 text-gray-500">
+                <ChevronDown size={16} />
+              </div>
           </div>
           <span className="text-sm text-gray-600">entries</span>
         </div>
@@ -165,8 +156,6 @@ const ShiftPage: React.FC = () => {
           </tbody>
         </table>
       </div>
-
-      {/* Pagination */}
       <div className="flex justify-between items-center mt-4 text-sm text-gray-600">
         <span>
           {totalDisplayItems > 0 
@@ -229,8 +218,6 @@ const ShiftPage: React.FC = () => {
           </button>
         </div>
       </div>
-
-      {/* Modal */}
       <ShiftModal
         isOpen={isModalOpen}
         onClose={() => {
