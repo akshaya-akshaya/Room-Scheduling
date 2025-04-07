@@ -96,8 +96,6 @@ const RoomSchedulePage: React.FC = () => {
 
     const updatedData = weekSchedule.data.map((dayData: any) => {
       if (dayData.day !== selectedCell.day) return dayData;
-      
-      // Initialize room data if it doesn't exist
       if (!dayData.roomData[selectedCell.roomId]) {
         console.log(`Initializing room data for roomId: ${selectedCell.roomId}`);
         dayData.roomData[selectedCell.roomId] = shifts.map(shift => ({
@@ -123,8 +121,6 @@ const RoomSchedulePage: React.FC = () => {
     const updatedSchedule = { ...weekSchedule, data: updatedData };
     updateWeekSchedule(updatedSchedule);
     localStorage.setItem(weekKey, JSON.stringify(updatedSchedule));
-    
-    // Update doctor assignments in localStorage
     const doctorAssignments = JSON.parse(localStorage.getItem('doctorAssignments') || '[]');
     const filteredAssignments = doctorAssignments.filter((item: any) =>
       !(item.roomId === selectedCell.roomId && item.day === selectedCell.day && item.shiftId === selectedCell.shiftId)
@@ -193,7 +189,11 @@ const RoomSchedulePage: React.FC = () => {
                         const hasDoctor = !!doctor;
 
                         return (
-                          <td key={`${day.day}-${room.id}-${shift.id}`} className="border p-0 min-w-32" onClick={() => handleCellClick(room.id, day.day, shift.id, doctor)}>
+                          <td key={`${day.day}-${room.id}-${shift.id}`} className="border p-0 min-w-32" onClick={() => {
+                            if(!doctor){
+                              handleCellClick(room.id, day.day, shift.id, doctor)}}
+                            }
+                           >
                             <div className={`w-full h-full p-3 cursor-pointer ${hasDoctor ? 'bg-green-400' : 'bg-yellow-300'}`}>
                               {hasDoctor ? (
                                 <div className="flex items-center justify-between">
@@ -201,11 +201,7 @@ const RoomSchedulePage: React.FC = () => {
                                   <X
                                     size={16}
                                     className="text-black"
-                                    onClick={e => {
-                                      e.stopPropagation();
-                                      setSelectedCell({ roomId: room.id, day: day.day, shiftId: shift.id, doctor });
-                                      handleDoctorUpdate('');
-                                    }}
+                                    onClick={() => handleCellClick(room.id, day.day, shift.id, doctor)}
                                   />
                                 </div>
                               ) : (
